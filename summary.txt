@@ -1,0 +1,53 @@
+Project Overview:
+I am building an MVP for an automated Gate Boom Barrier access control system. The system will use RFID chips and an RFID scanner to grant access. Eventually, I want to add a camera for visual verification, but for this MVP, we are strictly limiting it to the RFID reader and chip. The goal is to get a "bare-minimum, just make it work" solution.
+
+Hardware Stack:
+
+Control Panel: The system is housed in a metal enclosure. It contains an x86 Single Board Computer (SBC), a power supply, relay modules for controlling the boom gate, and a green RFID module (likely MFRC522 or PN532) connected via SPI.
+
+Controller Options (pick one for MVP):
+- ESP32 + Arduino IDE (recommended for cost: ~₹300–800 in India). Separate board wired to RFID + relay; does NOT flash the blue board in the box.
+- Raspberry Pi (Python) for more headroom and future camera work (~₹15k+ kit in India).
+
+Peripherals: RFID reader (SPI/I2C), Relay (to trigger the gate boom).
+
+Software & Communication Stack:
+
+Protocol: MQTT (using a public broker like test.mosquitto.org for testing).
+
+Topics:
+
+gate/access (Controller publishes "GRANTED", "DENIED", or "REMOTE_UNLOCK").
+
+gate/cmd (Mobile app publishes {"action":"unlock"}).
+
+Controller Scripts:
+- esp32-arduino-controller/ — gate_access.ino + config.h (PubSubClient, MFRC522, WiFi)
+- raspberry-pi-controller/ — main.py + config.py (paho-mqtt, mfrc522, RPi.GPIO)
+
+Mobile App: React Native. Single-screen app with MQTT status, "Remote Unlock" button, and a text log of gate/access messages.
+
+Constraints & Guidelines:
+
+MVP Only: Do not over-engineer. No complex architectures. Keep controller logic in one main file per platform.
+
+Mobile: MQTT on background thread / async (RN mqtt client handles network off UI thread).
+
+Manifest: android:usesCleartextTraffic="true" and INTERNET for non-SSL MQTT WebSocket.
+
+Folder Structure:
+
+esp32-arduino-controller/gate_access/
+raspberry-pi-controller/
+react-native-app/
+TESTING.md, README.md, GateAccess_Beginner_Guide.pdf
+
+Deliverables:
+
+ESP32 Arduino sketch (PubSubClient, MFRC522) — primary low-cost path.
+
+Raspberry Pi Python script (optional).
+
+React Native app (App.js, mqttService.js).
+
+Docs: README, TESTING, beginner PDF; inject = mount new board + upload/run scripts, backup old blue board first.
